@@ -1,0 +1,37 @@
+name: CI Triage
+
+# Triages failed checks with Claude: fixes what is mechanical, comments on the rest.
+# See https://github.com/andersr/ci-triage.
+on:
+  workflow_run:
+    # The `name:` of the checks workflow.
+    workflows: [__CHECKS_WORKFLOW_NAME__]
+    types: [completed]
+  # Dispatched by the checks workflow's fast job the moment it fails.
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: The failed checks run
+        required: true
+      branch:
+        description: Its branch
+        required: true
+
+jobs:
+  triage:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure'
+    uses: andersr/ci-triage/.github/workflows/triage.yml@__SHA__ # __VERSION__
+    secrets: inherit
+    permissions:
+      contents: read
+    with:
+      run-id: ${{ github.event.workflow_run.id || inputs.run_id }}
+      branch: ${{ github.event.workflow_run.head_branch || inputs.branch }}
+      fast-job: __FAST_JOB__
+      # Keep only the setup lines this project needs.
+      node-version-file: __NODE_VERSION_FILE__
+      pnpm: __PNPM__
+      bun-version: __BUN_VERSION__
+      install-command: __INSTALL_COMMAND__
+      allowed-tools: __ALLOWED_TOOLS__
+      disallowed-tools: __DISALLOWED_TOOLS__

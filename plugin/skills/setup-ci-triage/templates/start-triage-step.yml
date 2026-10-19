@@ -1,0 +1,20 @@
+# Add to the checks workflow's fast job. The job needs `actions: write` to dispatch:
+#
+#   permissions:
+#     contents: read
+#     actions: write
+#
+# A `permissions` block sets every scope it omits to none, so carry over any the job already uses.
+# Put the step last, so it runs after whichever earlier step failed.
+
+      - name: Start CI triage
+        if: >-
+          failure() &&
+          (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: >-
+          gh workflow run ci-triage.yml --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH"
+          -f run_id="$GITHUB_RUN_ID" -f branch="$BRANCH"
