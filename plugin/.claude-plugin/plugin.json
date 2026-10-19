@@ -5,5 +5,6 @@
   "author": {
     "name": "andersr"
   },
-  "repository": "https://github.com/andersr/ci-triage"
+  "repository": "https://github.com/andersr/ci-triage",
+  "license": "MIT"
 }
