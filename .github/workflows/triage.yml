@@ -48,6 +48,10 @@ on:
         description: Notes for Claude about this project, added to the prompt. CLAUDE.md is read as well.
         type: string
         default: ""
+      diagnose-only-branches:
+        description: Branch prefixes, comma-separated, where triage comments but never pushes, e.g. `renovate/` (a bot stops updating a branch someone else commits to).
+        type: string
+        default: ""
     # Passed by name: `secrets: inherit` does not carry a secret that exists only in an environment.
     secrets:
       CI_TRIAGE_APP_PRIVATE_KEY:
@@ -88,19 +92,29 @@ jobs:
           RUN_ID: ${{ inputs.run-id }}
           SLUG: ${{ steps.app-token.outputs.app-slug }}
           FAST_JOB: ${{ inputs.fast-job }}
+          DIAGNOSE_ONLY: ${{ inputs.diagnose-only-branches }}
         run: |
           run=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID")
           field() { jq -r "$1" <<<"$run"; }
           branch=$(field .head_branch)
           sha=$(field .head_sha)
           attempt=$(field .run_attempt)
+
+          mode=fix
+          IFS=, read -ra prefixes <<<"$DIAGNOSE_ONLY"
+          for prefix in "${prefixes[@]}"; do
+            prefix=$(xargs <<<"$prefix")
+            if [ -n "$prefix" ] && [[ "$branch" == "$prefix"* ]]; then mode=comment; fi
+          done
+          if [ "$(field .triggering_actor.login)" = "${SLUG}[bot]" ]; then mode=diagnose; fi
+
           {
             echo "attempt=$attempt"
             echo "branch=$branch"
             echo "sha=$sha"
             echo "event=$(field .event)"
             echo "pr=$(field '.pull_requests[0].number // "none"')"
-            if [ "$(field .triggering_actor.login)" = "${SLUG}[bot]" ]; then echo "mode=diagnose"; else echo "mode=fix"; fi
+            echo "mode=$mode"
           } >> "$GITHUB_OUTPUT"
 
           # A fork's branch would run here with the App's key in reach.
@@ -205,12 +219,17 @@ jobs:
                  and push to BRANCH with `git push --no-verify`. If BRANCH is the default
                  branch, never push to it: push a branch `ci-fix-<short commit>` and open a PR
                  with `gh pr create`.
-               - FLAKY, in MODE fix and on attempt 1: `gh run rerun <run> --failed`.
+               - FIX, in MODE comment (a branch another tool maintains, which stops updating
+                 it once someone else commits): push nothing. Work out the fix and report it
+                 as **🧩 Fix proposed**.
+               - FLAKY, in MODE fix or comment, on attempt 1: `gh run rerun <run> --failed`.
                - Everything else, and anything at all in MODE diagnose (the failure follows a
                  push or re-run of your own, so do not try again): change nothing.
             4. Report once. With a PR NUMBER, `gh pr comment`; without one, a commit comment via
                `gh api repos/<repo>/commits/<commit>/comments -f body=...`. Start with one bold line:
                - **🔧 Fixed**: what failed, what you changed, and the commit.
+               - **🧩 Fix proposed**: what failed, and the change as a short diff, ready to
+                 apply by hand or by replying with `@claude`.
                - **🔁 Re-ran**: what failed and why you judge it flaky.
                - **💬 Needs discussion**: what failed, the cause as far as you can tell with
                  file and line, the options you see, and the question to answer.

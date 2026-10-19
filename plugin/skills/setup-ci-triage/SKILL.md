@@ -28,6 +28,10 @@ a secret or a PR. Reads need no confirmation.
   lacks. These go in `disallowed-tools`, e.g. `Bash(bun run test:e2e:*)`.
 - **Git hooks**: husky, lefthook and simple-git-hooks are switched off by the workflow. Any
   other hook tool needs its switch named in `instructions`.
+- **Bot-maintained branches**: Renovate (`renovate/`), Dependabot (`dependabot/`) or a
+  similar tool stops updating a branch once anyone else commits to it. Recommend listing
+  their prefixes in `diagnose-only-branches`, so triage proposes the fix there rather than
+  pushing it.
 - **CLAUDE.md**: whether it names the project's check commands and what needs a person.
   Ask the user which failures need one (payments, migrations, infrastructure) and add a short
   "CI triage" section if it lacks one. Project specifics go there, not into this repository.

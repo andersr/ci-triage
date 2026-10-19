@@ -1,11 +1,12 @@
 # ci-triage
 
 A reusable GitHub Actions workflow that hands failed checks to Claude. Each failure gets one
-of four outcomes, reported in a single PR comment, or a commit comment when there is no PR:
+of five outcomes, reported in a single PR comment, or a commit comment when there is no PR:
 
 | Outcome | When | What happens |
 | --- | --- | --- |
 | **🔧 Fixed** | mechanical: formatting, an autofixable lint finding, an unused export, a small type error | one commit pushed to the branch |
+| **🧩 Fix proposed** | mechanical, on a branch listed in `diagnose-only-branches` | nothing pushed; the fix posted as a diff |
 | **🔁 Re-ran** | infrastructure: a runner timeout, an image pull, a network error | the failed jobs re-run once |
 | **💬 Needs discussion** | a decision: changed behaviour, design, end-to-end, secrets, deployment, CI | nothing changed; the question asked |
 | **🛑 Fix failed** | its own fix or re-run failed again | nothing changed; what it tried |
@@ -63,6 +64,7 @@ Both triggers run the default branch's copy, so it works only once merged.
 | `allowed-tools` | | Tool patterns beyond the defaults, e.g. `Bash(bun:*)` |
 | `disallowed-tools` | | Tool patterns refused, e.g. a suite the job cannot run |
 | `instructions` | | Project notes added to the prompt |
+| `diagnose-only-branches` | | Branch prefixes, comma-separated, where triage proposes a fix rather than pushing it, e.g. `renovate/,dependabot/`. A dependency bot stops updating a branch once someone else commits to it |
 
 Everything project-specific (which commands verify a fix, which failures need a person)
 belongs in the repository's own `CLAUDE.md`, which Claude reads first.

@@ -38,3 +38,5 @@ jobs:
       install-command: __INSTALL_COMMAND__
       allowed-tools: __ALLOWED_TOOLS__
       disallowed-tools: __DISALLOWED_TOOLS__
+      # Branches a bot maintains, which it stops updating once someone else commits.
+      diagnose-only-branches: __DIAGNOSE_ONLY_BRANCHES__
