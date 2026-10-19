@@ -14,6 +14,12 @@ of five outcomes, reported in a single PR comment, or a commit comment when ther
 Fixes are pushed as a GitHub App, so the fix's own checks run. A run started by the App's
 push or re-run only diagnoses, so each push of yours buys at most one fix attempt.
 
+**Each PR gets one triage comment, updated in place.** A later failure replaces the report
+at the top and moves the previous one into a collapsed "Earlier reports" section, keeping
+the last five. A bot that rebases its branch on every change to the default branch would
+otherwise add a comment each time. An edit sends no notification, so watch the PR's checks
+rather than your inbox for a repeat failure.
+
 ## Setting it up
 
 With Claude Code, in the repository:
