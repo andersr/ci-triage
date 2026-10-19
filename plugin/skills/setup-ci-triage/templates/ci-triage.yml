@@ -21,7 +21,10 @@ jobs:
   triage:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'failure'
     uses: andersr/ci-triage/.github/workflows/triage.yml@__SHA__ # __VERSION__
-    secrets: inherit
+    # By name, not `inherit`: the key exists only in the environment, which inherit does not reach.
+    secrets:
+      CI_TRIAGE_APP_PRIVATE_KEY: ${{ secrets.CI_TRIAGE_APP_PRIVATE_KEY }}
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
     permissions:
       contents: read
     with:

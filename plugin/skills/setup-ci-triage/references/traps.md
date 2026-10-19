@@ -12,6 +12,7 @@ Each of these fails quietly. Check every one when setting up a repository.
 | `workflow_run` and `workflow_dispatch` run the default branch's copy | Nothing can be tested before the caller workflow merges | Merge, then test with a throwaway PR |
 | The App has no Workflows permission | A fix touching `.github/workflows/` is refused on push | Deliberate. Such failures are classed as needing a person |
 | An environment secret is readable only from its environment | The token step fails: no private key | Create the environment in the calling repository, and limit it to the default branch |
+| `secrets: inherit` does not carry a secret that exists only in an environment | The token step fails: "The 'private-key' input must be set", although the client id, a variable, arrives | Pass `CI_TRIAGE_APP_PRIVATE_KEY` by name under `secrets:`, as the template does |
 | A `permissions` block sets every omitted scope to none | Adding `actions: write` to the fast job breaks a step that needed another scope | Carry over every scope the job already used |
 | Closing and reopening a throwaway PR | Per-PR preview resources with fixed names can fail to recreate | Push to the open PR rather than reopening it |
 | A push to a closed PR | No checks run, so nothing is triaged | Reopen it, or use a new PR |

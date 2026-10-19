@@ -9,7 +9,7 @@
       "name": "ci-triage",
       "source": "./plugin",
       "description": "Sets up Claude CI triage in a repository: failed checks fixed when mechanical, re-run when flaky, commented on otherwise.",
-      "version": "1.0.0"
+      "version": "1.0.1"
     }
   ]
 }

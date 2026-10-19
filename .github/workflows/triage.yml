@@ -48,6 +48,14 @@ on:
         description: Notes for Claude about this project, added to the prompt. CLAUDE.md is read as well.
         type: string
         default: ""
+    # Passed by name: `secrets: inherit` does not carry a secret that exists only in an environment.
+    secrets:
+      CI_TRIAGE_APP_PRIVATE_KEY:
+        required: true
+      CLAUDE_CODE_OAUTH_TOKEN:
+        required: false
+      ANTHROPIC_API_KEY:
+        required: false
 
 jobs:
   triage:

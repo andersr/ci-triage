@@ -39,7 +39,9 @@ By hand, a repository needs:
 3. **A repository secret** `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`) or
    `ANTHROPIC_API_KEY`.
 4. **[`ci-triage.yml`](plugin/skills/setup-ci-triage/templates/ci-triage.yml)** in
-   `.github/workflows/`, which calls this workflow.
+   `.github/workflows/`, which calls this workflow. It passes the secrets by name:
+   `secrets: inherit` does not carry one that exists only in an environment. A project
+   using `ANTHROPIC_API_KEY` passes that instead of `CLAUDE_CODE_OAUTH_TOKEN`.
 5. **[The dispatch step](plugin/skills/setup-ci-triage/templates/start-triage-step.yml)** at
    the end of the checks workflow's fast job, so triage starts when lint or unit tests fail
    rather than after the slowest job.

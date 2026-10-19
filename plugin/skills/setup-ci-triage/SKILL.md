@@ -72,6 +72,8 @@ the fallback is a repository secret, which every branch can read.
 - Copy `templates/ci-triage.yml` to `.github/workflows/ci-triage.yml`. Fill each `__X__`;
   drop the inputs that do not apply. Pin `__SHA__` to the commit of the latest release tag,
   `gh api repos/andersr/ci-triage/commits/<tag> --jq .sha`, with the tag as `__VERSION__`.
+  Keep the secrets passed by name, never `secrets: inherit`, which drops the environment's
+  key. If the repository uses `ANTHROPIC_API_KEY`, pass it in place of the OAuth token.
 - Add `templates/start-triage-step.yml` as the last step of the fast job, with its
   permissions, carrying over any scope the job already had.
 - If the repository documents its CI, add a short section saying triage exists and linking
